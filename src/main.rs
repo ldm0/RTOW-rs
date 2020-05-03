@@ -41,21 +41,19 @@ fn main() {
 
     buffer
         .enumerate_rows_mut()
-        .map(|(y, row)| {
+        .for_each(|(y, row)| {
             if y % 50 == 0 {
                 println!("line: {}", y);
             }
-            row.map(|(x, y, pixel)| {
+            row.for_each(|(x, y, pixel)| {
                 let u = x as f32 / WIDTH as f32;
                 let v = y as f32 / HEIGHT as f32;
                 let direction = lower_left_corner + u * horizontal + v * vertical;
                 let ray = ray::Ray::new(origin, direction);
                 let color = ray_color(ray);
                 *pixel = image::Rgb(color.pixel());
-            })
-            .count();
-        })
-        .count();
+            });
+        });
 
     buffer.save("emm.bmp").unwrap();
 }
