@@ -4,6 +4,8 @@ use crate::vec;
 pub struct HitRecord {
     pub position: vec::Vec3,
     pub normal: vec::Vec3,
+    pub time: f32,
+    pub front_face: bool,
 }
 
 pub trait Hittable {
@@ -19,6 +21,23 @@ impl Sphere {
     pub fn new(center: vec::Vec3, radius: f32) -> Self {
         Sphere { center, radius }
     }
+
+    /// Convenient function for generating HitRecord for a sphere when we already know the t of hitting
+    pub fn hit_record(&self, ray: &ray::Ray, t: f32) -> HitRecord {
+        let position = ray.at(t);
+        let out_normal = (position - self.center).unify();
+        let (front_face, normal) = if ray.direction.dot(out_normal) < 0. {
+            (true, out_normal)
+        } else {
+            (false, -out_normal)
+        };
+        HitRecord {
+            position,
+            normal,
+            time: 0.,
+            front_face,
+        }
+    }
 }
 
 impl Hittable for Sphere {
@@ -29,13 +48,11 @@ impl Hittable for Sphere {
         let c = oc.length_squared() - self.radius * self.radius;
         let delta = half_b * half_b - a * c;
         if delta >= 0. {
-            Some((-half_b - delta.sqrt()) / a)
-                .filter(|&t| t < tmax && t > tmin)
-                .map(|t| {
-                    let position = ray.at(t);
-                    let normal = (position - self.center).unify();
-                    HitRecord { position, normal }
-                })
+            // the smaller is better
+            [(-half_b - delta.sqrt()) / a, (-half_b + delta.sqrt()) / a]
+                .iter()
+                .find(|&&t| t < tmax && t > tmin)
+                .map(|&t| self.hit_record(ray, t))
         } else {
             None
         }
