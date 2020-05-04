@@ -13,8 +13,10 @@ impl Vec3 {
     }
 
     pub fn pixel(self) -> [u8; 3] {
-        let tmp = self * 255.9999;
-        [tmp.x as u8, tmp.y as u8, tmp.z as u8]
+        let r = self.x.sqrt() * 255.999;
+        let g = self.y.sqrt() * 255.999;
+        let b = self.z.sqrt() * 255.999;
+        [r as u8, g as u8, b as u8]
     }
 
     pub fn unify(self) -> Vec3 {
