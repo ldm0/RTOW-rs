@@ -1,16 +1,6 @@
+use crate::hit;
 use crate::ray;
 use crate::vec;
-
-pub struct HitRecord {
-    pub position: vec::Vec3,
-    pub normal: vec::Vec3,
-    pub time: f32,
-    pub front_face: bool,
-}
-
-pub trait Hittable {
-    fn hit(&self, ray: &ray::Ray, tmin: f32, tmax: f32) -> Option<HitRecord>;
-}
 
 pub struct Sphere {
     pub center: vec::Vec3,
@@ -22,26 +12,26 @@ impl Sphere {
         Sphere { center, radius }
     }
 
-    /// Convenient function for generating HitRecord for a sphere when we already know the t of hitting
-    pub fn hit_record(&self, ray: &ray::Ray, t: f32) -> HitRecord {
+    /// Convenient function for generating hit::HitRecord for a sphere when we already know the t of hitting
+    pub fn hit_record(&self, ray: &ray::Ray, t: f32) -> hit::HitRecord {
         let position = ray.at(t);
-        let out_normal = (position - self.center).unify();
+        let out_normal = position - self.center;
         let (front_face, normal) = if ray.direction.dot(out_normal) < 0. {
             (true, out_normal)
         } else {
             (false, -out_normal)
         };
-        HitRecord {
+        hit::HitRecord {
             position,
             normal,
-            time: 0.,
+            t,
             front_face,
         }
     }
 }
 
-impl Hittable for Sphere {
-    fn hit(&self, ray: &ray::Ray, tmin: f32, tmax: f32) -> Option<HitRecord> {
+impl hit::Hittable for Sphere {
+    fn hit(&self, ray: &ray::Ray, tmin: f32, tmax: f32) -> Option<hit::HitRecord> {
         let oc = ray.origin - self.center;
         let a = ray.direction.length_squared();
         let half_b = ray.direction.dot(oc);
