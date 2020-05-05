@@ -1,18 +1,25 @@
 use crate::hit;
+use crate::material;
 use crate::ray;
 use crate::vec;
 
-pub struct Sphere {
+pub struct Sphere<'a> {
     pub center: vec::Vec3,
     pub radius: f32,
+    pub material: &'a dyn material::Material,
 }
 
-impl Sphere {
-    pub fn new(center: vec::Vec3, radius: f32) -> Self {
-        Sphere { center, radius }
+impl<'a> Sphere<'a> {
+    pub fn new(center: vec::Vec3, radius: f32, material: &'a dyn material::Material) -> Self {
+        Sphere {
+            center,
+            radius,
+            material,
+        }
     }
 
-    /// Convenient function for generating hit::HitRecord for a sphere when we already know the t of hitting
+    /// Convenient function for generating hit::HitRecord for a sphere when we
+    /// already know the t of hit.
     pub fn hit_record(&self, ray: &ray::Ray, t: f32) -> hit::HitRecord {
         let position = ray.at(t);
         let out_normal = position - self.center;
@@ -26,11 +33,12 @@ impl Sphere {
             normal,
             t,
             front_face,
+            material: self.material,
         }
     }
 }
 
-impl hit::Hittable for Sphere {
+impl<'a> hit::Hittable for Sphere<'a> {
     fn hit(&self, ray: &ray::Ray, tmin: f32, tmax: f32) -> Option<hit::HitRecord> {
         let oc = ray.origin - self.center;
         let a = ray.direction.length_squared();

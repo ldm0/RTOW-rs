@@ -1,13 +1,15 @@
+use crate::material;
 use crate::ray;
 use crate::vec;
 
-pub struct HitRecord {
+pub struct HitRecord<'a> {
     pub position: vec::Vec3,
     /// Attention: The normal not ensure to be unified, should be unified by
     /// the user.
     pub normal: vec::Vec3,
     pub t: f32,
     pub front_face: bool,
+    pub material: &'a dyn material::Material,
 }
 
 pub trait Hittable {
@@ -38,6 +40,7 @@ impl<'a> HittableList<'a> {
                 (tmax, None),
                 |(mut current_tmax, mut current_hit_record), &object| {
                     if let Some(hit_record) = object.hit(ray, tmin, tmax) {
+                        // find the smallest t
                         if hit_record.t < current_tmax {
                             current_tmax = hit_record.t;
                             current_hit_record = Some(hit_record);
