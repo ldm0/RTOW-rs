@@ -23,6 +23,7 @@ impl<'a> Sphere<'a> {
     pub fn hit_record(&self, ray: &ray::Ray, t: f32) -> hit::HitRecord {
         let position = ray.at(t);
         let out_normal = position - self.center;
+        // We need normal in the same side of in_ray to ensure Lambertian works correctly.
         let (front_face, normal) = if ray.direction.dot(out_normal) < 0. {
             (true, out_normal)
         } else {

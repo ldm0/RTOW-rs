@@ -11,8 +11,8 @@ mod vec;
 use rand::Rng;
 use rng::RNG;
 
-const WIDTH: u32 = 200;
-const HEIGHT: u32 = 100;
+const WIDTH: u32 = 800;
+const HEIGHT: u32 = 400;
 const SAMPLE: u32 = 500;
 const DEPTH: u32 = 50;
 
@@ -22,7 +22,7 @@ fn ray_color(ray: &ray::Ray, world: &hit::HittableList, depth: u32) -> vec::Vec3
     } else if let Some(hit_record) = world.hit(&ray, 0.001, std::f32::MAX) {
         if let Some((attenuation, reflect)) = hit_record
             .material
-            .scatter(ray.direction, hit_record.normal)
+            .scatter(ray.direction, &hit_record)
         {
             let ray = ray::Ray::new(hit_record.position, reflect);
             attenuation * ray_color(&ray, world, depth - 1)
@@ -43,10 +43,11 @@ fn main() {
     let l2 = material::Lambertian::new(vec::Vec3::new(0.8, 0.8, 0.0));
     let m1 = material::Metal::new(1.0, vec::Vec3::new(0.8, 0.6, 0.2));
     let m2 = material::Metal::new(0.3, vec::Vec3::new(0.8, 0.8, 0.8));
+    let g1 = material::Glass::new(1.5);
 
     let s1 = sphere::Sphere::new(vec::Vec3::new(0., 0., -1.), 0.5, &l1);
     let s2 = sphere::Sphere::new(vec::Vec3::new(0., -100.5, -1.), 100., &l2);
-    let s3 = sphere::Sphere::new(vec::Vec3::new(1., 0., -1.), 0.5, &m1);
+    let s3 = sphere::Sphere::new(vec::Vec3::new(1., 0., -1.), 0.5, &g1);
     let s4 = sphere::Sphere::new(vec::Vec3::new(-1., 0., -1.), 0.5, &m2);
 
     let mut world = hit::HittableList::new();
