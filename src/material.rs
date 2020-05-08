@@ -21,10 +21,23 @@ fn refract(coefficient: f32, in_direction: vec::Vec3, normal: vec::Vec3) -> vec:
         reflect(in_direction, normal)
     } else {
         // refract
-        let r_perpendicular = coefficient *  (r - cos_theta * n);
-        let r_parallel = -(1. - r_perpendicular.length_squared()).sqrt() * n;
-        r_parallel + r_perpendicular
+        // Christophe Schlick's hack
+        let r0 = (1. - coefficient) / (1. + coefficient);
+        let r0 = r0 * r0;
+        let reflect_probability = r0 - (1. - r0) * (1. - cos_theta).powi(5);
+        if random_unit() < reflect_probability {
+            reflect(in_direction, normal)
+        } else {
+            let r_perpendicular = coefficient * (r - cos_theta * n);
+            let r_parallel = -(1. - r_perpendicular.length_squared()).sqrt() * n;
+            r_parallel + r_perpendicular
+        }
     }
+}
+
+fn random_unit() -> f32 {
+    let mut rng = RNG.lock().unwrap();
+    rng.gen_range(0., 1.)
 }
 
 fn random_in_unit_sphere() -> vec::Vec3 {
@@ -78,7 +91,8 @@ impl Material for Metal {
         in_direction: vec::Vec3,
         hit_record: &hit::HitRecord,
     ) -> Option<(vec::Vec3, vec::Vec3)> {
-        let reflected = reflect(in_direction, hit_record.normal) + self.fuzz * random_in_unit_sphere(); // fuzz a little bit
+        let reflected =
+            reflect(in_direction, hit_record.normal) + self.fuzz * random_in_unit_sphere(); // fuzz a little bit
         Some((self.albedo, reflected))
     }
 }

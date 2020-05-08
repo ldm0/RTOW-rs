@@ -9,15 +9,30 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn new() -> Self {
-        let upper_left_corner = vec::Vec3::new(-2., 1., -1.);
-        let horizontal = vec::Vec3::new(4., 0., 0.);
-        let vertical = vec::Vec3::new(0., -2., 0.);
-        let origin = vec::Vec3::new(0., 0., 0.);
+    pub fn new(
+        origin: vec::Vec3,
+        lookat: vec::Vec3,
+        upwards: vec::Vec3,
+        v_aspect: f32,
+        h_aspect: f32,
+    ) -> Self {
+        let v = v_aspect / 180. * std::f32::consts::PI;
+        let h = h_aspect / 180. * std::f32::consts::PI;
+
+        let (half_width, half_height) = (h.tan(), v.tan());
+
+        let w = (origin - lookat).unify();
+        let u = upwards.cross(w).unify();
+        let v = u.cross(w).unify();
+        println!("u:{:?} v:{:?} w:{:?} half_width:{} half_height:{}", u, v, w, half_width, half_height);
+
+        let (half_vertical, half_horizontal) = (half_height * v, half_width * u);
+        let upper_left_corner = origin - w - half_vertical - half_horizontal;
+        println!("half_horizontal:{:?} half_vertical:{:?}", half_horizontal, half_vertical);
         Self {
             upper_left_corner,
-            horizontal,
-            vertical,
+            horizontal: 2. * half_horizontal,
+            vertical: 2. * half_vertical,
             origin,
         }
     }

@@ -22,7 +22,8 @@ impl<'a> Sphere<'a> {
     /// already know the t of hit.
     pub fn hit_record(&self, ray: &ray::Ray, t: f32) -> hit::HitRecord {
         let position = ray.at(t);
-        let out_normal = position - self.center;
+        // When radius is negative we get reversed normal, where we can do the hollow glass ball trick
+        let out_normal = (position - self.center) / self.radius;
         // We need normal in the same side of in_ray to ensure Lambertian works correctly.
         let (front_face, normal) = if ray.direction.dot(out_normal) < 0. {
             (true, out_normal)
