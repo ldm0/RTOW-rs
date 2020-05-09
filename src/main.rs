@@ -11,8 +11,8 @@ mod vec;
 use rand::Rng;
 use rng::RNG;
 
-const WIDTH: u32 = 400;
-const HEIGHT: u32 = 400;
+const WIDTH: u32 = 800;
+const HEIGHT: u32 = 450;
 const SAMPLE: u32 = 80;
 const DEPTH: u32 = 100;
 
@@ -38,32 +38,30 @@ fn ray_color(ray: &ray::Ray, world: &hit::HittableList, depth: u32) -> vec::Vec3
 fn main() {
     let mut buffer: image::ImageBuffer<image::Rgb<u8>, _> = image::ImageBuffer::new(WIDTH, HEIGHT);
 
-    let l1 = material::Lambertian::new(vec::Vec3::new(0.7, 0.3, 0.3));
-    let l2 = material::Lambertian::new(vec::Vec3::new(0.8, 0.8, 0.0));
-    let m1 = material::Metal::new(0.1, vec::Vec3::new(0.8, 0.6, 0.2));
-    let m2 = material::Metal::new(0.3, vec::Vec3::new(0.8, 0.8, 0.8));
-    let g1 = material::Glass::new(1.5);
+    let ground_material = material::Lambertian::new(vec::Vec3::new(0.5, 0.5, 0.5));
+    let ball0_material = material::Glass::new(1.5);
+    let ball1_material = material::Lambertian::new(vec::Vec3::new(0.4, 0.2, 0.1));
+    let ball2_material = material::Metal::new(0.0, vec::Vec3::new(0.7, 0.6, 0.5));
 
-    let s1 = sphere::Sphere::new(vec::Vec3::new(0., 0., -1.), 0.49, &l1);
-    let s2 = sphere::Sphere::new(vec::Vec3::new(0., -100.5, -1.), 100., &l2);
-    let s3 = sphere::Sphere::new(vec::Vec3::new(-1., 0., -1.), 0.49, &m1);
-    let s4 = sphere::Sphere::new(vec::Vec3::new(1., 0., -1.), 0.49, &g1);
-    //let s5 = sphere::Sphere::new(vec::Vec3::new(1., 0., -1.), -0.45, &g1);
+    let ground = sphere::Sphere::new(vec::Vec3::new(0., -1000., -1.), 1000., &ground_material);
+
+    let ball0 = sphere::Sphere::new(vec::Vec3::new(0., 1., 0.), 1.0, &ball0_material);
+    let ball1 = sphere::Sphere::new(vec::Vec3::new(-4., 1., 0.), 1.0, &ball1_material);
+    let ball2 = sphere::Sphere::new(vec::Vec3::new(4., 1., 0.), 1.0, &ball2_material);
 
     let mut world = hit::HittableList::new();
-    world.insert(&s1);
-    world.insert(&s2);
-    world.insert(&s3);
-    world.insert(&s4);
-    //world.insert(&s5);
+    world.insert(&ground);
+    world.insert(&ball0);
+    world.insert(&ball1);
+    world.insert(&ball2);
 
     let camera = camera::Camera::new(
-        0.5 * vec::Vec3::new(3., 2., 1.),
-        vec::Vec3::new(0., 0., -1.),
+        vec::Vec3::new(13., 2., 3.),
+        vec::Vec3::new(0., 0., 0.),
         vec::Vec3::new(0., 1., 0.),
-        90.,
-        90.,
-        0.2,
+        20.,
+        16. / 9.,
+        0.1,
     );
 
     buffer.enumerate_rows_mut().for_each(|(y, row)| {

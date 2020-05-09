@@ -26,15 +26,15 @@ impl Camera {
         lookat: vec::Vec3,
         upwards: vec::Vec3,
         v_aspect: f32,
-        h_aspect: f32,
+        aspect_ratio: f32,
         aperture: f32,
     ) -> Self {
         let focus_distance = (lookat - origin).length();
 
         let v = v_aspect * std::f32::consts::PI / 180. / 2.;
-        let h = h_aspect * std::f32::consts::PI / 180. / 2.;
 
-        let (half_width, half_height) = (h.tan(), v.tan());
+        let half_height = v.tan();
+        let half_width = aspect_ratio * half_height;
 
         let w = (origin - lookat).unify();
         let u = upwards.cross(w).unify();
