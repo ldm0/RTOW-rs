@@ -1,7 +1,5 @@
-use rand::Rng;
-
 use crate::hit;
-use crate::rng::RNG;
+use crate::rng::{random_in_hemisphere, random_in_unit_sphere, random_unit};
 use crate::vec;
 
 /// We assume normal is always at the same side with the in_direction. Normal and
@@ -32,31 +30,6 @@ fn refract(coefficient: f32, in_direction: vec::Vec3, normal: vec::Vec3) -> vec:
             let r_parallel = -(1. - r_perpendicular.length_squared()).sqrt() * n;
             r_parallel + r_perpendicular
         }
-    }
-}
-
-fn random_unit() -> f32 {
-    let mut rng = RNG.lock().unwrap();
-    rng.gen_range(0., 1.)
-}
-
-fn random_in_unit_sphere() -> vec::Vec3 {
-    // This is true random, the one in RTOW is not uniform
-    let mut rng = RNG.lock().unwrap();
-    let a = rng.gen_range(0., 2. * std::f32::consts::PI);
-    let b = rng.gen_range(-1., 1. * std::f32::consts::PI);
-    let (sin_a, sin_b) = (a.sin(), b.sin());
-    let (cos_a, cos_b) = (a.cos(), b.cos());
-    vec::Vec3::new(sin_a * cos_b, sin_a * sin_b, cos_a)
-}
-
-/// `normal` is just used for direction checking, is not needed to be unified
-fn random_in_hemisphere(normal: vec::Vec3) -> vec::Vec3 {
-    let tmp = random_in_unit_sphere();
-    if tmp.dot(normal) >= 0. {
-        tmp
-    } else {
-        -tmp
     }
 }
 
