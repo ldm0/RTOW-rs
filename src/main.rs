@@ -134,5 +134,5 @@ fn main() {
         });
     });
 
-    buffer.save("emm.bmp").unwrap();
+    buffer.save("output.bmp").unwrap();
 }
