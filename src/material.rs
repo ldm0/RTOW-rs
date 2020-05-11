@@ -13,7 +13,7 @@ fn reflect(in_direction: vec::Vec3, normal: vec::Vec3) -> vec::Vec3 {
 /// in_direction are not unified.
 fn refract(coefficient: f32, in_direction: vec::Vec3, normal: vec::Vec3) -> vec::Vec3 {
     let (r, n) = (in_direction.unify(), normal.unify());
-    let cos_theta = r.dot(n);
+    let cos_theta = -r.dot(n);
     if coefficient > 1. && (1. - cos_theta * cos_theta) * coefficient * coefficient > 1. {
         // All reflect
         reflect(in_direction, normal)
@@ -22,11 +22,11 @@ fn refract(coefficient: f32, in_direction: vec::Vec3, normal: vec::Vec3) -> vec:
         // Christophe Schlick's hack
         let r0 = (1. - coefficient) / (1. + coefficient);
         let r0 = r0 * r0;
-        let reflect_probability = r0 - (1. - r0) * (1. - cos_theta).powi(5);
+        let reflect_probability = r0 + (1. - r0) * (1. - cos_theta).powi(5);
         if random_unit() < reflect_probability {
             reflect(in_direction, normal)
         } else {
-            let r_perpendicular = coefficient * (r - cos_theta * n);
+            let r_perpendicular = coefficient * (r + cos_theta * n);
             let r_parallel = -(1. - r_perpendicular.length_squared()).sqrt() * n;
             r_parallel + r_perpendicular
         }

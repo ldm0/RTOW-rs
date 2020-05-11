@@ -1,22 +1,8 @@
 use crate::ray;
 use crate::rng;
 use crate::vec;
-use rand::Rng;
 
-fn random_in_unit_disk() -> vec::Vec3 {
-    let mut rng = rng::RNG.lock().unwrap();
-    let mut x;
-    let mut y;
-    loop {
-        x = rng.gen_range(0., 1.);
-        y = rng.gen_range(0., 1.);
-        if x * x + y * y < 1. {
-            break;
-        }
-    }
-
-    vec::Vec3::new(x, y, 0.)
-}
+use rng::random_in_unit_disk;
 
 pub struct Camera {
     upper_left_corner: vec::Vec3,
@@ -39,7 +25,6 @@ impl Camera {
         aperture: f32,
         focus_distance: f32,
     ) -> Self {
-
         let v = v_aspect * std::f32::consts::PI / 180. / 2.;
 
         let half_height = v.tan();

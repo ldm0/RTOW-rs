@@ -15,16 +15,22 @@ pub fn random_unit() -> f32 {
 }
 
 pub fn random_in_unit_sphere() -> vec::Vec3 {
-    // This is true random, the one in RTOW is not uniform
     let mut rng = RNG.lock().unwrap();
-    let a = rng.gen_range(0., 2. * std::f32::consts::PI);
-    let b = rng.gen_range(-1., 1. * std::f32::consts::PI);
-    let (sin_a, sin_b) = (a.sin(), b.sin());
-    let (cos_a, cos_b) = (a.cos(), b.cos());
-    vec::Vec3::new(sin_a * cos_b, sin_a * sin_b, cos_a)
+    let mut result;
+    loop {
+        result = vec::Vec3::new(
+            rng.gen_range(-1., 1.),
+            rng.gen_range(-1., 1.),
+            rng.gen_range(-1., 1.),
+        );
+        if result.length() < 1. {
+            break;
+        }
+    }
+    result
 }
 
-/// `normal` is just used for direction checking, is not needed to be unified
+/// `normal` is just used for direction checking, unifying is not needed
 pub fn random_in_hemisphere(normal: vec::Vec3) -> vec::Vec3 {
     let tmp = random_in_unit_sphere();
     if tmp.dot(normal) >= 0. {
@@ -34,6 +40,26 @@ pub fn random_in_hemisphere(normal: vec::Vec3) -> vec::Vec3 {
     }
 }
 
+pub fn random_in_unit_disk() -> vec::Vec3 {
+    let mut rng = RNG.lock().unwrap();
+    let mut x;
+    let mut y;
+    loop {
+        x = rng.gen_range(0., 1.);
+        y = rng.gen_range(0., 1.);
+        if x * x + y * y < 1. {
+            break;
+        }
+    }
+
+    vec::Vec3::new(x, y, 0.)
+}
+
 pub fn random_color() -> vec::Vec3 {
-    vec::Vec3::new(random_unit(), random_unit(), random_unit())
+    let mut rng = RNG.lock().unwrap();
+    vec::Vec3::new(
+        rng.gen_range(0., 1.),
+        rng.gen_range(0., 1.),
+        rng.gen_range(0., 1.),
+    )
 }

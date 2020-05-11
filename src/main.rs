@@ -8,12 +8,11 @@ mod rng;
 mod sphere;
 mod vec;
 
-use rand::Rng;
-use rng::{random_color, random_unit, RNG};
+use rng::{random_color, random_unit};
 
 const WIDTH: u32 = 1600;
 const HEIGHT: u32 = 900;
-const SAMPLE: u32 = 500;
+const SAMPLE: u32 = 300;
 const DEPTH: u32 = 100;
 
 fn ray_color(ray: &ray::Ray, world: &hit::HittableList, depth: u32) -> vec::Vec3 {
@@ -122,16 +121,12 @@ fn main() {
             println!("line: {}", y);
         }
         row.for_each(|(x, y, pixel)| {
-            let (rwidth, rheight) = (1. / WIDTH as f32, 1. / HEIGHT as f32);
             let (x, y) = (x as f32, y as f32);
             let color = (0..SAMPLE).fold(vec::Vec3::new(0., 0., 0.), |color, _| {
-                let (u, v) = {
-                    let mut rng = RNG.lock().unwrap();
-                    (
-                        x * rwidth + rng.gen_range(-rwidth, rwidth),
-                        y * rheight + rng.gen_range(-rheight, rheight),
-                    )
-                };
+                let (u, v) = (
+                    (x + random_unit()) / WIDTH as f32,
+                    (y + random_unit()) / HEIGHT as f32,
+                );
                 let ray = camera.get_ray(u, v);
                 color + ray_color(&ray, &world, DEPTH)
             }) / SAMPLE as f32;
