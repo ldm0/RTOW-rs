@@ -16,21 +16,22 @@ pub trait Hittable {
     fn hit(&self, ray: &ray::Ray, tmin: f32, tmax: f32) -> Option<HitRecord>;
 }
 
-pub struct HittableList<'a> {
+pub struct HittableList {
     /// Currently we assume all object created before list is created and
     /// created in the main function.
-    pub objects: Vec<&'a dyn Hittable>,
+    pub objects: Vec<Box<dyn Hittable>>,
 }
 
-impl<'a> HittableList<'a> {
+impl HittableList {
     pub fn new() -> Self {
         HittableList {
             objects: Vec::new(),
         }
     }
 
-    pub fn insert(&mut self, object: &'a dyn Hittable) {
-        self.objects.push(object);
+    pub fn insert<T: 'static + Hittable>(mut self, object: T) -> Self {
+        self.objects.push(Box::new(object));
+        self
     }
 
     pub fn hit(&self, ray: &ray::Ray, tmin: f32, tmax: f32) -> Option<HitRecord> {
@@ -38,7 +39,7 @@ impl<'a> HittableList<'a> {
             .iter()
             .fold(
                 (tmax, None),
-                |(mut current_tmax, mut current_hit_record), &object| {
+                |(mut current_tmax, mut current_hit_record), object| {
                     if let Some(hit_record) = object.hit(ray, tmin, tmax) {
                         // find the smallest t
                         if hit_record.t < current_tmax {

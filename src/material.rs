@@ -119,3 +119,12 @@ impl Material for Glass {
         Some((vec::Vec3::new(1., 1., 1.), refracted))
     }
 }
+
+impl<T> From<T> for Box<dyn Material>
+where
+    T: 'static + Material,
+{
+    fn from(material: T) -> Self {
+        Box::new(material)
+    }
+}

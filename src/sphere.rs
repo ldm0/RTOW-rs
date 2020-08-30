@@ -3,18 +3,22 @@ use crate::material;
 use crate::ray;
 use crate::vec;
 
-pub struct Sphere<'a> {
+pub struct Sphere {
     pub center: vec::Vec3,
     pub radius: f32,
-    pub material: &'a dyn material::Material,
+    pub material: Box<dyn material::Material>,
 }
 
-impl<'a> Sphere<'a> {
-    pub fn new(center: vec::Vec3, radius: f32, material: &'a dyn material::Material) -> Self {
+impl Sphere {
+    pub fn new<T: Into<Box<dyn material::Material>>>(
+        center: vec::Vec3,
+        radius: f32,
+        material: T,
+    ) -> Self {
         Sphere {
             center,
             radius,
-            material,
+            material: material.into(),
         }
     }
 
@@ -35,12 +39,12 @@ impl<'a> Sphere<'a> {
             normal,
             t,
             front_face,
-            material: self.material,
+            material: &*self.material,
         }
     }
 }
 
-impl<'a> hit::Hittable for Sphere<'a> {
+impl<'a> hit::Hittable for Sphere {
     fn hit(&self, ray: &ray::Ray, tmin: f32, tmax: f32) -> Option<hit::HitRecord> {
         let oc = ray.origin - self.center;
         let a = ray.direction.length_squared();
