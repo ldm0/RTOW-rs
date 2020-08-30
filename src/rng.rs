@@ -1,13 +1,11 @@
 use crate::vec;
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use rand;
 use rand::{Rng, SeedableRng};
 use std::sync::Mutex;
 
-lazy_static! {
-    pub static ref RNG: Mutex<rand::rngs::SmallRng> =
-        Mutex::new(rand::rngs::SmallRng::from_entropy());
-}
+pub static RNG: Lazy<Mutex<rand::rngs::SmallRng>> =
+    Lazy::new(|| Mutex::new(rand::rngs::SmallRng::from_entropy()));
 
 pub fn random_unit() -> f32 {
     let mut rng = RNG.lock().unwrap();
